@@ -1,0 +1,15 @@
+# The working draft this repository is built from. Deliberately untracked:
+/Minutatim_Development_Plan_v0.1.md
+
+node_modules/
+.DS_Store
+
+# Per-developer agent state
+.claude/settings.local.json
+.claude/*.local.json
+
+# Per-developer toolchain overrides
+mise.local.toml
+
+# Runtime state
+.minutatim/
