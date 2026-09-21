@@ -10,3 +10,7 @@ run = "npm run format"
 [tasks.check]
 description = "Every gate that runs offline"
 run = "npm run check:all"
+
+[tasks.lint]
+description = "Markdown lint"
+run = "npm run lint"
