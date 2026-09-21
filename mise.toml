@@ -1,2 +1,12 @@
+# `mise run <task>` is the public task API; package.json scripts are the
+# implementation layer.
 [tools]
 node = "24"
+
+[tasks.format]
+description = "Rewrite every supported file with Prettier"
+run = "npm run format"
+
+[tasks.check]
+description = "Every gate that runs offline"
+run = "npm run check:all"

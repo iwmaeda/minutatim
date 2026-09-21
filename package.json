@@ -1,0 +1,22 @@
+{
+  "name": "minutatim",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "One change at a time: human approval gates for AI coding agents, keyed on effect class rather than command name.",
+  "license": "MIT",
+  "author": {
+    "name": "MAEDA, Iwao",
+    "url": "https://github.com/iwmaeda"
+  },
+  "repository": "https://github.com/iwmaeda/minutatim",
+  "scripts": {
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "check:all": "npm run format:check",
+    "fix:all": "npm run format"
+  },
+  "devDependencies": {
+    "prettier": "^3.9.8"
+  }
+}
