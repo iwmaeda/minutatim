@@ -1,0 +1,17 @@
+{
+  "$schema": "../../../../schemas/approval.schema.json",
+  "schemaVersion": 1,
+  "approvalId": "a-0001",
+  "proposalHash": "sha256:a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4a1b2c3d4",
+  "effectClass": "filesystem-write",
+  "scope": [],
+  "changeBudget": {
+    "maxFiles": 1,
+    "maxAddedLines": 80,
+    "maxDeletedLines": 30
+  },
+  "issuedAt": "2026-09-22T09:00:05Z",
+  "expiresAt": "2026-09-22T09:15:05Z",
+  "approvedBy": "human",
+  "verification": ["typecheck", "unit-test"]
+}

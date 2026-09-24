@@ -1,0 +1,61 @@
+{
+  "$schema": "../../../../schemas/policy.schema.json",
+  "schemaVersion": 1,
+  "mode": "compatibility",
+  "defaults": {
+    "read-only": {
+      "decision": "allow",
+      "log": false
+    },
+    "proposed-change": {
+      "decision": "allow"
+    },
+    "filesystem-write": {
+      "decision": "ask"
+    },
+    "shell-side-effect": {
+      "decision": "ask"
+    },
+    "git-state-change": {
+      "decision": "ask"
+    },
+    "network-read": {
+      "decision": "allow",
+      "log": true
+    },
+    "network-write": {
+      "decision": "ask"
+    },
+    "external-mcp-action": {
+      "decision": "ask"
+    },
+    "credential-security": {
+      "decision": "ask"
+    },
+    "unclassified": {
+      "decision": "ask"
+    }
+  },
+  "rules": [
+    {
+      "effectClass": "filesystem-write",
+      "match": {
+        "paths": ["docs/**"]
+      },
+      "decision": "allow"
+    },
+    {
+      "effectClass": "shell-side-effect",
+      "match": {
+        "commands": ["npm ci"]
+      },
+      "decision": "ask",
+      "changeBudget": {
+        "maxFiles": 1,
+        "maxAddedLines": 0,
+        "maxDeletedLines": 0
+      },
+      "verification": ["schema"]
+    }
+  ]
+}

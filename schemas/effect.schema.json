@@ -1,0 +1,85 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/iwmaeda/minutatim/main/schemas/effect.schema.json",
+  "title": "Normalized effect",
+  "description": "One side effect an adapter observed, normalized out of its host's vocabulary.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "effectId",
+    "effectClass",
+    "host",
+    "observedAt",
+    "intent",
+    "targets"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1,
+      "description": "Format version."
+    },
+    "effectId": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Identifier unique within a session."
+    },
+    "effectClass": {
+      "description": "The class policy is keyed on.",
+      "enum": [
+        "read-only",
+        "proposed-change",
+        "filesystem-write",
+        "shell-side-effect",
+        "git-state-change",
+        "network-read",
+        "network-write",
+        "external-mcp-action",
+        "credential-security",
+        "unclassified"
+      ]
+    },
+    "host": {
+      "description": "Which adapter produced this.",
+      "enum": ["claude-code", "codex", "copilot"]
+    },
+    "hostEvent": {
+      "type": "object",
+      "additionalProperties": true,
+      "description": "The adapter's record of the native event."
+    },
+    "observedAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When the adapter saw it."
+    },
+    "intent": {
+      "type": "string",
+      "minLength": 1,
+      "description": "What the agent says this effect is for."
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 1,
+      "description": "What the effect acts on.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["kind", "value"],
+        "properties": {
+          "kind": {
+            "description": "What `value` is.",
+            "enum": ["path", "command", "url", "resource"]
+          },
+          "value": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    }
+  }
+}

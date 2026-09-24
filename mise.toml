@@ -14,3 +14,7 @@ run = "npm run check:all"
 [tasks.lint]
 description = "Markdown lint"
 run = "npm run lint"
+
+[tasks.validate]
+description = "Schemas compile; every fixture is accepted or rejected as declared"
+run = "npm run validate"

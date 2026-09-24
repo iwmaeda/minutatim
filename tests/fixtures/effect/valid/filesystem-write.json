@@ -1,0 +1,19 @@
+{
+  "$schema": "../../../../schemas/effect.schema.json",
+  "schemaVersion": 1,
+  "effectId": "e-0001",
+  "effectClass": "filesystem-write",
+  "host": "claude-code",
+  "observedAt": "2026-09-22T09:00:00Z",
+  "intent": "Add the state machine transition table.",
+  "targets": [
+    {
+      "kind": "path",
+      "value": "src/core/state-machine.ts"
+    },
+    {
+      "kind": "path",
+      "value": "tests/unit/state-machine.test.ts"
+    }
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../../schemas/effect.schema.json",
+  "schemaVersion": 1,
+  "effectId": "e-0005",
+  "effectClass": "network-write",
+  "host": "claude-code",
+  "observedAt": "2026-09-22T09:00:00Z",
+  "intent": "Open a pull request for the approved change.",
+  "targets": [
+    {
+      "kind": "url",
+      "value": "https://api.github.com/repos/iwmaeda/minutatim/pulls"
+    }
+  ]
+}

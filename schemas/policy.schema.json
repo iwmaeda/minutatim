@@ -1,0 +1,136 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/iwmaeda/minutatim/main/schemas/policy.schema.json",
+  "title": "Minutatim policy",
+  "description": "What is allowed, asked about, or denied, per effect class.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schemaVersion", "mode", "defaults"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "mode": {
+      "description": "Strict fails closed on an unclassified effect; compatibility does not.",
+      "enum": ["strict", "compatibility"]
+    },
+    "defaults": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "A decision for every effect class.",
+      "required": [
+        "read-only",
+        "proposed-change",
+        "filesystem-write",
+        "shell-side-effect",
+        "git-state-change",
+        "network-read",
+        "network-write",
+        "external-mcp-action",
+        "credential-security",
+        "unclassified"
+      ],
+      "properties": {
+        "read-only": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "proposed-change": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "filesystem-write": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "shell-side-effect": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "git-state-change": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "network-read": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "network-write": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "external-mcp-action": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "credential-security": {
+          "$ref": "#/$defs/decisionEntry"
+        },
+        "unclassified": {
+          "$ref": "#/$defs/decisionEntry"
+        }
+      }
+    },
+    "rules": {
+      "type": "array",
+      "description": "Narrower overrides, evaluated in order. The first match wins.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["effectClass", "decision"],
+        "properties": {
+          "effectClass": {
+            "$ref": "effect.schema.json#/properties/effectClass"
+          },
+          "match": {
+            "type": "object",
+            "additionalProperties": false,
+            "description": "Absent matches every effect of the class.",
+            "properties": {
+              "paths": {
+                "$ref": "#/$defs/matchList"
+              },
+              "commands": {
+                "$ref": "#/$defs/matchList"
+              },
+              "urls": {
+                "$ref": "#/$defs/matchList"
+              }
+            }
+          },
+          "decision": {
+            "$ref": "#/$defs/decision"
+          },
+          "changeBudget": {
+            "$ref": "approval.schema.json#/$defs/changeBudget"
+          },
+          "verification": {
+            "$ref": "approval.schema.json#/$defs/verification"
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "decision": {
+      "description": "`ask` means a valid approval must exist before the effect runs.",
+      "enum": ["allow", "ask", "deny"]
+    },
+    "decisionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["decision"],
+      "properties": {
+        "decision": {
+          "$ref": "#/$defs/decision"
+        },
+        "log": {
+          "type": "boolean"
+        }
+      }
+    },
+    "matchList": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    }
+  }
+}

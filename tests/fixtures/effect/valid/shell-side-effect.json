@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../../schemas/effect.schema.json",
+  "schemaVersion": 1,
+  "effectId": "e-0004",
+  "effectClass": "shell-side-effect",
+  "host": "claude-code",
+  "observedAt": "2026-09-22T09:00:00Z",
+  "intent": "Install the pinned dependencies.",
+  "targets": [
+    {
+      "kind": "command",
+      "value": "npm ci"
+    }
+  ]
+}

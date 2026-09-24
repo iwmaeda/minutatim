@@ -1,0 +1,99 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/iwmaeda/minutatim/main/schemas/approval.schema.json",
+  "title": "Approval record",
+  "description": "One human decision, as structured data rather than chat history.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "approvalId",
+    "proposalHash",
+    "effectClass",
+    "scope",
+    "changeBudget",
+    "issuedAt",
+    "expiresAt",
+    "approvedBy",
+    "verification"
+  ],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "schemaVersion": {
+      "const": 1
+    },
+    "approvalId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "proposalHash": {
+      "type": "string",
+      "pattern": "^sha256:[0-9a-f]{64}$",
+      "description": "Hash of the proposal this approval binds to."
+    },
+    "effectClass": {
+      "$ref": "effect.schema.json#/properties/effectClass"
+    },
+    "scope": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      },
+      "description": "What the human agreed this may touch."
+    },
+    "changeBudget": {
+      "$ref": "#/$defs/changeBudget"
+    },
+    "issuedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "expiresAt": {
+      "type": "string",
+      "format": "date-time",
+      "description": "When this approval stops being valid."
+    },
+    "approvedBy": {
+      "const": "human"
+    },
+    "verification": {
+      "$ref": "#/$defs/verification"
+    }
+  },
+  "$defs": {
+    "changeBudget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["maxFiles", "maxAddedLines", "maxDeletedLines"],
+      "description": "Size bounds on the change.",
+      "properties": {
+        "maxFiles": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "maxAddedLines": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "maxDeletedLines": {
+          "type": "integer",
+          "minimum": 0
+        }
+      }
+    },
+    "verification": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "description": "How the result will be checked.",
+      "items": {
+        "enum": ["typecheck", "unit-test", "lint", "schema", "diff-review"]
+      }
+    }
+  }
+}

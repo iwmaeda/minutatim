@@ -1,0 +1,15 @@
+{
+  "$schema": "../../../../schemas/effect.schema.json",
+  "schemaVersion": 1,
+  "effectId": "e-0002",
+  "effectClass": "read-only",
+  "host": "claude-code",
+  "observedAt": "2026-09-22T09:00:00Z",
+  "intent": "Read the policy file to report current mode.",
+  "targets": [
+    {
+      "kind": "path",
+      "value": "minutatim.policy.json"
+    }
+  ]
+}

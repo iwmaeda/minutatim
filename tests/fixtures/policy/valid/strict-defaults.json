@@ -1,0 +1,39 @@
+{
+  "$schema": "../../../../schemas/policy.schema.json",
+  "schemaVersion": 1,
+  "mode": "strict",
+  "defaults": {
+    "read-only": {
+      "decision": "allow",
+      "log": false
+    },
+    "proposed-change": {
+      "decision": "allow"
+    },
+    "filesystem-write": {
+      "decision": "ask"
+    },
+    "shell-side-effect": {
+      "decision": "ask"
+    },
+    "git-state-change": {
+      "decision": "ask"
+    },
+    "network-read": {
+      "decision": "allow",
+      "log": true
+    },
+    "network-write": {
+      "decision": "ask"
+    },
+    "external-mcp-action": {
+      "decision": "ask"
+    },
+    "credential-security": {
+      "decision": "ask"
+    },
+    "unclassified": {
+      "decision": "deny"
+    }
+  }
+}
