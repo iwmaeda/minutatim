@@ -22,3 +22,15 @@ run = "npm run validate"
 [tasks.test]
 description = "Unit tests"
 run = "npm test"
+
+[tasks.install]
+description = "Install npm dependencies from the lockfile"
+run = "npm ci"
+
+[tasks.audit]
+description = "Fail on known high-severity vulnerabilities"
+run = "npm run audit"
+
+[tasks.ci]
+description = "Clean install, every gate, then the audit"
+run = [{ task = "install" }, { task = "check" }, { task = "audit" }]
