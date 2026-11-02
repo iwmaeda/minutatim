@@ -12,6 +12,29 @@ Minutatim closes that gap by requiring an explicit human approval before every m
 keying that approval on the _effect_ — a file write, a Git mutation, an external action — rather than on the
 name of the command that produced it.
 
+## Development
+
+The toolchain is pinned with [mise](https://mise.jdx.dev/), and `mise run <task>` is the command surface for
+contributors and CI alike.
+
+```bash
+mise trust
+mise install
+mise run install
+mise run check
+```
+
+| Command             | Purpose                                                                 |
+| ------------------- | ----------------------------------------------------------------------- |
+| `mise run install`  | Install npm dependencies from the lockfile                              |
+| `mise run format`   | Rewrite every supported file with Prettier                              |
+| `mise run lint`     | Markdown lint                                                           |
+| `mise run validate` | Schemas compile; every fixture is judged as declared; test glob covered |
+| `mise run test`     | Unit tests                                                              |
+| `mise run check`    | Every gate that runs offline                                            |
+| `mise run audit`    | Fail on known high-severity vulnerabilities                             |
+| `mise run ci`       | Clean install, every gate, then the audit; GitHub Actions runs this     |
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
