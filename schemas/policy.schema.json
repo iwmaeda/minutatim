@@ -14,7 +14,7 @@
       "const": 1
     },
     "mode": {
-      "description": "Strict fails closed on an unclassified effect; compatibility does not.",
+      "description": "Strict denies every unclassified effect, whatever defaults and rules say; compatibility applies them.",
       "enum": ["strict", "compatibility"]
     },
     "defaults": {
@@ -68,7 +68,7 @@
     },
     "rules": {
       "type": "array",
-      "description": "Narrower overrides, evaluated in order. The first match wins.",
+      "description": "Narrower overrides, evaluated in order. The first match decides each target.",
       "items": {
         "type": "object",
         "additionalProperties": false,
@@ -83,13 +83,16 @@
             "description": "Absent matches every effect of the class.",
             "properties": {
               "paths": {
-                "$ref": "#/$defs/matchList"
+                "$ref": "#/$defs/matchList",
+                "description": "Globs over workspace-relative paths. `**` spans directories; `*` and `?` stay within one."
               },
               "commands": {
-                "$ref": "#/$defs/matchList"
+                "$ref": "#/$defs/matchList",
+                "description": "Exact commands. Runs of whitespace compare equal."
               },
               "urls": {
-                "$ref": "#/$defs/matchList"
+                "$ref": "#/$defs/matchList",
+                "description": "Globs over the whole URL, with the syntax of `paths`."
               }
             }
           },

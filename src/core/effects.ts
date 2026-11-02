@@ -36,7 +36,7 @@ export interface Effect {
   hostEvent?: Record<string, unknown>;
   observedAt: string;
   intent: string;
-  targets: EffectTarget[];
+  targets: [EffectTarget, ...EffectTarget[]];
 }
 
 // Effect's keys at runtime, for comparison against the JSON Schema.
