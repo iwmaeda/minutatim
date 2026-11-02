@@ -1,6 +1,7 @@
-import { existsSync, readdirSync, readFileSync } from 'node:fs';
+import { existsSync, globSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { Ajv2020 } from 'ajv/dist/2020.js';
+import { isRecord } from '../src/core/json.ts';
 
 const SCHEMAS = ['effect', 'policy', 'approval'] as const;
 const FIXTURE_ROOT = 'tests/fixtures';
@@ -9,10 +10,6 @@ const FIXTURE_ROOT = 'tests/fixtures';
 function fail(message: string, code: 1 | 2): never {
   process.stderr.write(`validate: ${message}\n`);
   process.exit(code);
-}
-
-function isRecord(value: unknown): value is Record<string, unknown> {
-  return typeof value === 'object' && value !== null && !Array.isArray(value);
 }
 
 function readJson(path: string): unknown {
@@ -29,6 +26,29 @@ function readSchema(path: string): Record<string, unknown> & { $id: string } {
   const id = schema['$id'];
   if (typeof id !== 'string') fail(`${path} has no $id`, 2);
   return { ...schema, $id: id };
+}
+
+function posix(path: string): string {
+  return path.replaceAll('\\', '/');
+}
+
+function testFilesFromScript(): string[] {
+  const pkg = readJson('package.json');
+  if (!isRecord(pkg)) fail('package.json is not an object', 2);
+  const scripts = pkg['scripts'];
+  if (!isRecord(scripts)) fail('package.json has no scripts', 2);
+  const command = scripts['test'];
+  if (typeof command !== 'string') fail('package.json has no test script', 2);
+  const glob = /"([^"]+\.test\.ts)"/.exec(command)?.[1];
+  if (glob === undefined) fail(`the test script names no *.test.ts glob: ${command}`, 2);
+  return globSync(glob).map(posix).sort();
+}
+
+function testFilesOnDisk(): string[] {
+  return readdirSync('tests', { recursive: true })
+    .map((entry) => posix(join('tests', String(entry))))
+    .filter((path) => path.endsWith('.test.ts'))
+    .sort();
 }
 
 function fixturePaths(schema: string, bucket: 'valid' | 'invalid'): string[] {
@@ -75,9 +95,17 @@ for (const { name, validate, valid, invalid } of buckets) {
   }
 }
 
+const fromScript = testFilesFromScript();
+const onDisk = testFilesOnDisk();
+if (onDisk.length === 0) fail('no *.test.ts under tests/', 2);
+if (fromScript.join('\n') !== onDisk.join('\n')) {
+  fail(`the test glob misses files: glob=[${fromScript.join(' ')}] disk=[${onDisk.join(' ')}]`, 2);
+}
+
 const accepted = buckets.reduce((total, b) => total + b.valid.length, 0);
 const rejected = buckets.reduce((total, b) => total + b.invalid.length, 0);
 
 process.stdout.write(
-  `validate: ${buckets.length} schemas, ${accepted} accepted, ${rejected} rejected\n`,
+  `validate: ${buckets.length} schemas, ${accepted} accepted, ${rejected} rejected, ` +
+    `${onDisk.length} test files\n`,
 );

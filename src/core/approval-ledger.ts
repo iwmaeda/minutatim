@@ -7,6 +7,12 @@ export interface ChangeBudget {
   maxDeletedLines: number;
 }
 
+export const CHANGE_BUDGET_KEYS = [
+  'maxFiles',
+  'maxAddedLines',
+  'maxDeletedLines',
+] as const satisfies readonly (keyof ChangeBudget)[];
+
 export interface Approval {
   $schema?: string;
   schemaVersion: 1;

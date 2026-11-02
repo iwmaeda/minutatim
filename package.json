@@ -18,7 +18,8 @@
     "lint": "npm run lint:md",
     "typecheck": "tsc --noEmit",
     "validate": "node scripts/validate.ts",
-    "check:all": "npm run format:check && npm run lint && npm run typecheck && npm run validate",
+    "test": "node --test --test-reporter=spec \"tests/**/*.test.ts\"",
+    "check:all": "npm run format:check && npm run lint && npm run typecheck && npm run validate && npm test",
     "fix:all": "npm run format && npm run lint:md:fix"
   },
   "devDependencies": {

@@ -16,5 +16,9 @@ description = "Markdown lint"
 run = "npm run lint"
 
 [tasks.validate]
-description = "Schemas compile; every fixture is accepted or rejected as declared"
+description = "Schemas compile; every fixture is judged as declared; the test glob covers every test file"
 run = "npm run validate"
+
+[tasks.test]
+description = "Unit tests"
+run = "npm test"
