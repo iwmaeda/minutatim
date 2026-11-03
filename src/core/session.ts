@@ -9,7 +9,7 @@ import type { VerificationResult } from './verifier.ts';
 export type Session =
   | { state: 'PLAN' | 'EXPLAIN' | 'EXPLAIN_RESULT' }
   | { state: (typeof APPROVAL_STATES)[number]; proposal: Proposal }
-  | { state: 'APPLY_ATOMIC_CHANGE'; approval: Approval }
+  | { state: 'APPLY_ATOMIC_CHANGE'; approval: Approval; mismatches: Mismatch[] }
   | { state: 'VERIFY'; approval: Approval; mismatches: Mismatch[] };
 
 export type SessionEvent =
@@ -57,13 +57,13 @@ export function step(session: Session, event: SessionEvent, { ledger, now }: Ste
         : wrongState;
     case 'applied': {
       if (session.state !== 'APPLY_ATOMIC_CHANGE') return wrongState;
-      const { approval } = session;
+      const { approval, mismatches } = session;
       // One approval covers one application, even of an identical next proposal.
       ledger.invalidate(approval.approvalId, 'applied');
       return moveTo({
         state: 'VERIFY',
         approval,
-        mismatches: checkChanges(approval, event.changes),
+        mismatches: [...mismatches, ...checkChanges(approval, event.changes)],
       });
     }
     case 'verified':
@@ -95,7 +95,7 @@ function approve(proposal: Proposal, approvalId: string, ledger: ApprovalLedger,
   if (approval.proposalHash !== proposalHash(proposal) || terms(approval) !== terms(proposal)) {
     return { ok: false, refusal: { kind: 'approval-for-another-proposal' } };
   }
-  return moveTo({ state: 'APPLY_ATOMIC_CHANGE', approval });
+  return moveTo({ state: 'APPLY_ATOMIC_CHANGE', approval, mismatches: [] });
 }
 
 function terms({ effectClass, scope, changeBudget, verification }: Approval | Proposal): string {

@@ -100,7 +100,6 @@ function sessionIn(state: State): Session {
     case 'AWAIT_NEXT_APPROVAL':
       return { state, proposal: PROPOSAL };
     case 'APPLY_ATOMIC_CHANGE':
-      return { state, approval: approval() };
     case 'VERIFY':
       return { state, approval: approval(), mismatches: [] };
   }
