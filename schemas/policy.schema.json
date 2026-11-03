@@ -88,7 +88,7 @@
               },
               "commands": {
                 "$ref": "#/$defs/matchList",
-                "description": "Exact commands. Runs of whitespace compare equal."
+                "description": "Command lines compared character for character, whitespace and newlines included."
               },
               "urls": {
                 "$ref": "#/$defs/matchList",

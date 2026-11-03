@@ -156,7 +156,7 @@ test('paths are normalized before matching, and paths outside the workspace matc
   }
 });
 
-test('commands match exactly, with runs of whitespace compared equal', () => {
+test('commands match character for character, whitespace included', () => {
   const allowCi: PolicyRule = {
     effectClass: 'shell-side-effect',
     match: { commands: ['npm ci'] },
@@ -164,7 +164,9 @@ test('commands match exactly, with runs of whitespace compared equal', () => {
   };
   const cases: Record<string, 'allow' | 'ask'> = {
     'npm ci': 'allow',
-    '  npm   ci ': 'allow',
+    '  npm   ci ': 'ask',
+    'npm ci ': 'ask',
+    'npm\nci': 'ask',
     'npm ci && rm -rf /': 'ask',
     'npm cit': 'ask',
   };

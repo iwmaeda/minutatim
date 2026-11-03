@@ -2,17 +2,17 @@ import { posix } from 'node:path';
 import type { EffectTarget } from './effects.ts';
 import { matchesGlob } from './glob.ts';
 
-// Paths and URLs match as globs, commands exactly up to whitespace, resources exactly.
+// Paths and URLs match as globs. Commands and resources match character for character: any
+// normalization of a command can change what the shell runs, such as a newline into a space.
 export function targetMatches(target: EffectTarget, pattern: string): boolean {
   switch (target.kind) {
     case 'path': {
       const path = workspacePath(target.value);
       return path !== undefined && matchesGlob(path, pattern);
     }
-    case 'command':
-      return normalizeCommand(target.value) === normalizeCommand(pattern);
     case 'url':
       return matchesGlob(target.value, pattern);
+    case 'command':
     case 'resource':
       return target.value === pattern;
   }
@@ -24,8 +24,4 @@ export function workspacePath(value: string): string | undefined {
   const outside =
     path.startsWith('/') || path === '..' || path.startsWith('../') || path.includes('\\');
   return outside ? undefined : path;
-}
-
-function normalizeCommand(command: string): string {
-  return command.trim().split(/\s+/).join(' ');
 }
