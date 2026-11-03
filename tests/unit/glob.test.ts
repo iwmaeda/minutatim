@@ -20,6 +20,13 @@ test('dot files are not special', () => {
   check('**/*.yaml', { '.github/workflows/ci.yaml': true, 'a.yaml': true });
 });
 
+test('every wildcard spans a newline inside a file name', () => {
+  check('secret/**', { 'secret/a\nb/token': true });
+  check('**/token', { 'a\nb/token': true });
+  check('secret/*', { 'secret/a\nb': true });
+  check('a?b', { 'a\nb': true });
+});
+
 test('regular expression syntax in a pattern is literal', () => {
   check('a.b+(c)', { 'a.b+(c)': true, 'axb+(c)': false, 'a.bb(c)': false });
   check('[x]', { '[x]': true, x: false });

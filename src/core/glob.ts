@@ -14,5 +14,6 @@ export function matchesGlob(value: string, pattern: string): boolean {
         return `\\${token}`;
     }
   });
-  return new RegExp(`^${source}$`).test(value);
+  // The s flag lets `**` span newlines too, which a POSIX file name may contain.
+  return new RegExp(`^${source}$`, 's').test(value);
 }
