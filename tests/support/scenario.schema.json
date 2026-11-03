@@ -1,0 +1,212 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/iwmaeda/minutatim/main/tests/support/scenario.schema.json",
+  "title": "Core scenario",
+  "description": "Effects and session events in order, each with the outcome it must have.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["description", "policy", "start", "steps"],
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string",
+      "minLength": 1
+    },
+    "policy": {
+      "type": "string",
+      "minLength": 1,
+      "description": "A fixture under tests/fixtures/policy/valid, named without .json."
+    },
+    "start": {
+      "type": "string",
+      "format": "date-time",
+      "description": "The time until a step names another."
+    },
+    "steps": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          { "$ref": "#/$defs/effectStep" },
+          { "$ref": "#/$defs/eventStep" },
+          { "$ref": "#/$defs/issueStep" }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "effectStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effect", "decision", "expect"],
+      "description": "Passes an effect through the gate at its observedAt.",
+      "properties": {
+        "effect": {
+          "$ref": "../../schemas/effect.schema.json"
+        },
+        "decision": {
+          "$ref": "../../schemas/policy.schema.json#/$defs/decision"
+        },
+        "expect": {
+          "type": "string",
+          "description": "`run`, or the kind of block."
+        }
+      }
+    },
+    "eventStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["event", "expect"],
+      "properties": {
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "event": {
+          "$ref": "#/$defs/event"
+        },
+        "expect": {
+          "type": "string",
+          "description": "The state the session moves to, or the kind of refusal."
+        }
+      }
+    },
+    "issueStep": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["issue"],
+      "description": "The human approves the proposal the session is awaiting approval for.",
+      "properties": {
+        "at": {
+          "type": "string",
+          "format": "date-time"
+        },
+        "issue": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["approvalId", "expiresAt"],
+          "properties": {
+            "approvalId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "expiresAt": {
+              "type": "string",
+              "format": "date-time"
+            }
+          }
+        }
+      }
+    },
+    "event": {
+      "oneOf": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type"],
+          "properties": {
+            "type": { "enum": ["planned", "questioned", "revised"] }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "proposal"],
+          "properties": {
+            "type": { "const": "presented" },
+            "proposal": { "$ref": "#/$defs/proposal" }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "approvalId"],
+          "properties": {
+            "type": { "const": "approved" },
+            "approvalId": { "type": "string", "minLength": 1 }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "changes"],
+          "properties": {
+            "type": { "const": "applied" },
+            "changes": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/fileChange" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "results"],
+          "properties": {
+            "type": { "const": "verified" },
+            "results": {
+              "type": "array",
+              "items": { "$ref": "#/$defs/verificationResult" }
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["type", "next"],
+          "properties": {
+            "type": { "const": "reported" },
+            "next": { "$ref": "#/$defs/proposal" }
+          }
+        }
+      ]
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["effectClass", "scope", "changeBudget", "verification", "explanation"],
+      "properties": {
+        "effectClass": {
+          "$ref": "../../schemas/effect.schema.json#/properties/effectClass"
+        },
+        "scope": {
+          "$ref": "../../schemas/approval.schema.json#/properties/scope"
+        },
+        "changeBudget": {
+          "$ref": "../../schemas/approval.schema.json#/$defs/changeBudget"
+        },
+        "verification": {
+          "$ref": "../../schemas/approval.schema.json#/$defs/verification"
+        },
+        "explanation": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "fileChange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "addedLines", "deletedLines"],
+      "properties": {
+        "path": { "type": "string", "minLength": 1 },
+        "addedLines": { "type": "integer", "minimum": 0 },
+        "deletedLines": { "type": "integer", "minimum": 0 }
+      }
+    },
+    "verificationResult": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["name", "passed"],
+      "properties": {
+        "name": {
+          "$ref": "../../schemas/approval.schema.json#/$defs/verification/items"
+        },
+        "passed": { "type": "boolean" },
+        "detail": { "type": "string" }
+      }
+    }
+  }
+}

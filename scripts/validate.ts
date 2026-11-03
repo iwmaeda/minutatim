@@ -1,7 +1,7 @@
 import { existsSync, globSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { Ajv2020 } from 'ajv/dist/2020.js';
 import { isRecord } from '../src/core/json.ts';
+import { createAjv } from '../tests/support/ajv.ts';
 
 const SCHEMAS = ['effect', 'policy', 'approval'] as const;
 const FIXTURE_ROOT = 'tests/fixtures';
@@ -60,8 +60,7 @@ function fixturePaths(schema: string, bucket: 'valid' | 'invalid'): string[] {
     .map((name) => join(dir, name));
 }
 
-const ajv = new Ajv2020({ strict: true, allErrors: true });
-ajv.addFormat('date-time', (value: string) => !Number.isNaN(Date.parse(value)));
+const ajv = createAjv();
 
 // Every schema is registered before any is compiled, so cross-file $refs resolve.
 const registered = SCHEMAS.map((name) => {

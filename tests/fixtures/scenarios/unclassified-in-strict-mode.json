@@ -1,0 +1,34 @@
+{
+  "$schema": "../../support/scenario.schema.json",
+  "description": "Under the strict policy an effect the adapter could not classify is denied, while a classified plugin write meets the usual gate.",
+  "policy": "strict-defaults",
+  "start": "2026-11-03T09:00:00Z",
+  "steps": [
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-1",
+        "effectClass": "unclassified",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:00:00Z",
+        "intent": "Call a tool from a newly installed plugin.",
+        "targets": [{ "kind": "resource", "value": "plugin:new-plugin/sync" }]
+      },
+      "decision": "deny",
+      "expect": "denied-by-policy"
+    },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-2",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:01:00Z",
+        "intent": "A plugin's own edit tool writes a file.",
+        "targets": [{ "kind": "path", "value": "src/core/policy.ts" }]
+      },
+      "decision": "ask",
+      "expect": "needs-approval"
+    }
+  ]
+}
