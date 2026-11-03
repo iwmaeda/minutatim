@@ -1,7 +1,6 @@
-import { posix } from 'node:path';
 import type { Effect, EffectClass, EffectTarget } from './effects.ts';
 import type { ChangeBudget } from './approval-ledger.ts';
-import { matchesGlob } from './glob.ts';
+import { targetMatches } from './targets.ts';
 import type { VerificationName } from './verifier.ts';
 
 export const DECISIONS = ['allow', 'ask', 'deny'] as const;
@@ -87,32 +86,9 @@ function decide(policy: Policy, effectClass: EffectClass, target: EffectTarget):
   return { target, decision: policy.defaults[effectClass].decision, decidedBy: { by: 'default' } };
 }
 
+// A match list applies only to targets of its own kind; resources have no list.
 function matches(match: PolicyRuleMatch | undefined, target: EffectTarget): boolean {
   if (match === undefined) return true;
-  switch (target.kind) {
-    case 'path': {
-      const path = workspacePath(target.value);
-      return path !== undefined && (match.paths ?? []).some((glob) => matchesGlob(path, glob));
-    }
-    case 'command': {
-      const command = normalizeCommand(target.value);
-      return (match.commands ?? []).some((pattern) => normalizeCommand(pattern) === command);
-    }
-    case 'url':
-      return (match.urls ?? []).some((glob) => matchesGlob(target.value, glob));
-    case 'resource':
-      return false;
-  }
-}
-
-// Workspace-relative POSIX form, or undefined when the path cannot be placed in the workspace.
-function workspacePath(value: string): string | undefined {
-  const path = posix.normalize(value);
-  const outside =
-    path.startsWith('/') || path === '..' || path.startsWith('../') || path.includes('\\');
-  return outside ? undefined : path;
-}
-
-function normalizeCommand(command: string): string {
-  return command.trim().split(/\s+/).join(' ');
+  const lists = { path: match.paths, command: match.commands, url: match.urls, resource: [] };
+  return (lists[target.kind] ?? []).some((pattern) => targetMatches(target, pattern));
 }
