@@ -1,0 +1,67 @@
+{
+  "$schema": "../../support/scenario.schema.json",
+  "description": "An approval used after it expires is refused; one that expires mid-change blocks what follows but not what was done.",
+  "policy": "strict-defaults",
+  "start": "2026-11-03T09:00:00Z",
+  "steps": [
+    { "event": { "type": "planned" }, "expect": "EXPLAIN" },
+    {
+      "event": {
+        "type": "presented",
+        "proposal": {
+          "effectClass": "filesystem-write",
+          "scope": ["docs/**"],
+          "changeBudget": { "maxFiles": 2, "maxAddedLines": 60, "maxDeletedLines": 0 },
+          "verification": ["diff-review"],
+          "explanation": "Document the policy file format."
+        }
+      },
+      "expect": "AWAIT_APPROVAL"
+    },
+    { "issue": { "approvalId": "a-1", "expiresAt": "2026-11-03T09:05:00Z" } },
+    {
+      "at": "2026-11-03T09:05:00Z",
+      "event": { "type": "approved", "approvalId": "a-1" },
+      "expect": "approval-not-active"
+    },
+    { "issue": { "approvalId": "a-2", "expiresAt": "2026-11-03T09:15:00Z" } },
+    { "event": { "type": "approved", "approvalId": "a-2" }, "expect": "APPLY_ATOMIC_CHANGE" },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-1",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:10:00Z",
+        "intent": "Write the policy guide.",
+        "targets": [{ "kind": "path", "value": "docs/policy.md" }]
+      },
+      "decision": "ask",
+      "expect": "run"
+    },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-2",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:15:00Z",
+        "intent": "Link the guide from the docs index.",
+        "targets": [{ "kind": "path", "value": "docs/index.md" }]
+      },
+      "decision": "ask",
+      "expect": "approval-not-active"
+    },
+    {
+      "event": {
+        "type": "applied",
+        "changes": [{ "path": "docs/policy.md", "addedLines": 48, "deletedLines": 0 }]
+      },
+      "expect": "VERIFY"
+    },
+    {
+      "event": { "type": "verified", "results": [{ "name": "diff-review", "passed": true }] },
+      "expect": "EXPLAIN_RESULT"
+    }
+  ]
+}

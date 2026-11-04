@@ -1,0 +1,110 @@
+{
+  "$schema": "../../support/scenario.schema.json",
+  "description": "A file edit waits for approval, runs inside it, is verified, and the approval does not carry over.",
+  "policy": "strict-defaults",
+  "start": "2026-11-03T09:00:00Z",
+  "steps": [
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-1",
+        "effectClass": "read-only",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:00:00Z",
+        "intent": "Read the evaluator before changing it.",
+        "targets": [{ "kind": "path", "value": "src/core/policy.ts" }]
+      },
+      "decision": "allow",
+      "expect": "run"
+    },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-2",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:01:00Z",
+        "intent": "Edit the evaluator before anything was explained.",
+        "targets": [{ "kind": "path", "value": "src/core/policy.ts" }]
+      },
+      "decision": "ask",
+      "expect": "needs-approval"
+    },
+    { "event": { "type": "planned" }, "expect": "EXPLAIN" },
+    {
+      "event": {
+        "type": "presented",
+        "proposal": {
+          "effectClass": "filesystem-write",
+          "scope": ["src/core/policy.ts"],
+          "changeBudget": { "maxFiles": 1, "maxAddedLines": 40, "maxDeletedLines": 10 },
+          "verification": ["typecheck", "unit-test"],
+          "explanation": "Give each target decision the rule that made it."
+        }
+      },
+      "expect": "AWAIT_APPROVAL"
+    },
+    {
+      "at": "2026-11-03T09:02:00Z",
+      "issue": { "approvalId": "a-1", "expiresAt": "2026-11-03T09:17:00Z" }
+    },
+    { "event": { "type": "approved", "approvalId": "a-1" }, "expect": "APPLY_ATOMIC_CHANGE" },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-3",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:03:00Z",
+        "intent": "Give each target decision the rule that made it.",
+        "targets": [{ "kind": "path", "value": "src/core/policy.ts" }]
+      },
+      "decision": "ask",
+      "expect": "run"
+    },
+    {
+      "event": {
+        "type": "applied",
+        "changes": [{ "path": "src/core/policy.ts", "addedLines": 12, "deletedLines": 3 }]
+      },
+      "expect": "VERIFY"
+    },
+    {
+      "event": {
+        "type": "verified",
+        "results": [
+          { "name": "typecheck", "passed": true },
+          { "name": "unit-test", "passed": true }
+        ]
+      },
+      "expect": "EXPLAIN_RESULT"
+    },
+    {
+      "event": {
+        "type": "reported",
+        "next": {
+          "effectClass": "filesystem-write",
+          "scope": ["tests/unit/policy.test.ts"],
+          "changeBudget": { "maxFiles": 1, "maxAddedLines": 30, "maxDeletedLines": 0 },
+          "verification": ["unit-test"],
+          "explanation": "Test which rule decided each target."
+        }
+      },
+      "expect": "AWAIT_NEXT_APPROVAL"
+    },
+    { "event": { "type": "approved", "approvalId": "a-1" }, "expect": "approval-not-active" },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-4",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:05:00Z",
+        "intent": "Start on the next step before it is approved.",
+        "targets": [{ "kind": "path", "value": "tests/unit/policy.test.ts" }]
+      },
+      "decision": "ask",
+      "expect": "needs-approval"
+    }
+  ]
+}

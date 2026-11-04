@@ -45,3 +45,23 @@
 | `unbounded-budget.json`        | `/changeBudget` required |
 | `truncated-proposal-hash.json` | `/proposalHash` pattern  |
 | `no-verification.json`         | `/verification` minItems |
+
+## scenarios
+
+`tests/unit/scenarios.test.ts` checks each file against `tests/support/scenario.schema.json` and its policy
+against the policy schema, then plays the steps in order through the gate and the session.
+
+| Step     | What happens                                                                    | `expect`                            |
+| -------- | ------------------------------------------------------------------------------- | ----------------------------------- |
+| `effect` | The gate decides on the effect at its `observedAt`. `decision` is the policy's. | `run`, or the kind of block         |
+| `event`  | The session takes the event.                                                    | The next state, or the refusal kind |
+| `issue`  | The human approves the proposal awaiting approval.                              | —                                   |
+
+| Scenario                               | Case                                                                      |
+| -------------------------------------- | ------------------------------------------------------------------------- |
+| `file-edit-approved.json`              | Gated before approval, runs inside it, verified; no carry-over.           |
+| `target-differs-from-explanation.json` | An effect outside the explained file ends the approval.                   |
+| `formatter-over-budget.json`           | A formatter rewrites more files than the budget allows.                   |
+| `approval-expires.json`                | Expired before use, and expiring in the middle of a change.               |
+| `unclassified-in-strict-mode.json`     | The strict policy denies an unclassified effect; a plugin write is gated. |
+| `compatibility-rules.json`             | A rule allows docs edits; one target outside it makes the effect ask.     |

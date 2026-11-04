@@ -1,0 +1,54 @@
+{
+  "$schema": "../../support/scenario.schema.json",
+  "description": "A formatter approved for two files rewrites five: the run is allowed, but the change budget fails verification.",
+  "policy": "strict-defaults",
+  "start": "2026-11-03T09:00:00Z",
+  "steps": [
+    { "event": { "type": "planned" }, "expect": "EXPLAIN" },
+    {
+      "event": {
+        "type": "presented",
+        "proposal": {
+          "effectClass": "shell-side-effect",
+          "scope": ["npm run format", "src/core/**"],
+          "changeBudget": { "maxFiles": 2, "maxAddedLines": 20, "maxDeletedLines": 20 },
+          "verification": ["diff-review"],
+          "explanation": "Reformat the two files the last change left unformatted."
+        }
+      },
+      "expect": "AWAIT_APPROVAL"
+    },
+    { "issue": { "approvalId": "a-1", "expiresAt": "2026-11-03T09:15:00Z" } },
+    { "event": { "type": "approved", "approvalId": "a-1" }, "expect": "APPLY_ATOMIC_CHANGE" },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-1",
+        "effectClass": "shell-side-effect",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:01:00Z",
+        "intent": "Run the formatter.",
+        "targets": [{ "kind": "command", "value": "npm run format" }]
+      },
+      "decision": "ask",
+      "expect": "run"
+    },
+    {
+      "event": {
+        "type": "applied",
+        "changes": [
+          { "path": "src/core/gate.ts", "addedLines": 2, "deletedLines": 2 },
+          { "path": "src/core/glob.ts", "addedLines": 1, "deletedLines": 1 },
+          { "path": "src/core/json.ts", "addedLines": 1, "deletedLines": 1 },
+          { "path": "src/core/policy.ts", "addedLines": 3, "deletedLines": 3 },
+          { "path": "src/core/scope.ts", "addedLines": 1, "deletedLines": 1 }
+        ]
+      },
+      "expect": "VERIFY"
+    },
+    {
+      "event": { "type": "verified", "results": [{ "name": "diff-review", "passed": true }] },
+      "expect": "PLAN"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "$schema": "../../support/scenario.schema.json",
+  "description": "In compatibility mode a rule lets docs edits run without approval, and an unclassified effect asks instead of being denied.",
+  "policy": "compatibility-with-rules",
+  "start": "2026-11-03T09:00:00Z",
+  "steps": [
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-1",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:00:00Z",
+        "intent": "Fix a typo in the guide.",
+        "targets": [{ "kind": "path", "value": "docs/guide.md" }]
+      },
+      "decision": "allow",
+      "expect": "run"
+    },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-2",
+        "effectClass": "filesystem-write",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:01:00Z",
+        "intent": "Fix the same typo in a code comment, and the guide.",
+        "targets": [
+          { "kind": "path", "value": "docs/guide.md" },
+          { "kind": "path", "value": "src/core/policy.ts" }
+        ]
+      },
+      "decision": "ask",
+      "expect": "needs-approval"
+    },
+    {
+      "effect": {
+        "schemaVersion": 1,
+        "effectId": "e-3",
+        "effectClass": "unclassified",
+        "host": "claude-code",
+        "observedAt": "2026-11-03T09:02:00Z",
+        "intent": "Call a tool from a newly installed plugin.",
+        "targets": [{ "kind": "resource", "value": "plugin:new-plugin/sync" }]
+      },
+      "decision": "ask",
+      "expect": "needs-approval"
+    }
+  ]
+}
